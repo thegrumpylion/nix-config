@@ -1,16 +1,9 @@
-{
-  lib,
-  disk ? "/dev/disk/by-diskseq/1",
-  withSwap ? false,
-  swapSize,
-  ...
-}:
-{
+{...}: {
   disko.devices = {
     disk = {
       disk0 = {
         type = "disk";
-        device = disk;
+        device = "/dev/disk/by-diskseq/1";
         content = {
           type = "gpt";
           partitions = {
@@ -31,9 +24,6 @@
               size = "100%";
               content = {
                 type = "btrfs";
-                extraArgs = [ "-f" ]; # Override existing partition
-                # Subvolumes must set a mountpoint in order to be mounted,
-                # unless their parent is mounted
                 subvolumes = {
                   "@root" = {
                     mountpoint = "/";
@@ -49,9 +39,9 @@
                       "noatime"
                     ];
                   };
-                  "@swap" = lib.mkIf withSwap {
+                  "@swap" = {
                     mountpoint = "/.swapvol";
-                    swap.swapfile.size = "${swapSize}G";
+                    swap.swapfile.size = "4G";
                   };
                 };
               };
